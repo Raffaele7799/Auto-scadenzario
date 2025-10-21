@@ -1,0 +1,467 @@
+﻿<Window x:Class="AutoScadenzario.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AutoScadenzario"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="AutoScadenzario" 
+        Height="950" Width="1200" WindowStartupLocation="CenterScreen"
+        Loaded="MainWindow_Loaded">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="AppointmentStatusValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:AppointmentStatus"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="LinkedDeadlineTypeValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:LinkedDeadlineType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+
+    <TabControl Margin="10">
+        <TabItem Header="📊 Dashboard">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#F9F9F9">
+                <StackPanel Margin="20">
+                    <TextBlock Text="Dashboard Riepilogo" FontSize="28" FontWeight="Bold" Foreground="#333" Margin="0,0,0,20"/>
+
+                    <Border Background="White" CornerRadius="5" Padding="20" Margin="0,0,0,20">
+                        <Border.Effect>
+                            <DropShadowEffect ShadowDepth="1" Color="#CCC" Opacity="0.5" BlurRadius="5"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="Riepilogo Parco Veicoli" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                            <TextBlock FontSize="16" Margin="0,5,0,0">
+                                <Run Text="Numero totale di veicoli gestiti:"/>
+                                <Run Text="{Binding TotalVehiclesCount}" FontWeight="Bold"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Background="White" CornerRadius="5" Padding="20">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1" Color="#CCC" Opacity="0.5" BlurRadius="5"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="Scadenze più Urgenti" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                <ItemsControl ItemsSource="{Binding UpcomingDeadlines}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#EEE" BorderThickness="0,0,0,1" Padding="0,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Path Data="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,15H13V17H11V15M11,7H13V13H11V7"
+                                                          Fill="{Binding UrgencyColor}" Width="20" Height="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock FontWeight="Bold" Text="{Binding VehicleName}"/>
+                                                        <TextBlock Text="{Binding DeadlineType}" Foreground="Gray"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                                                        <TextBlock Text="{Binding DaysRemainingText}" FontWeight="Bold" HorizontalAlignment="Right"/>
+                                                        <TextBlock Text="{Binding ExpiryDate, StringFormat='dd/MM/yyyy'}" Foreground="Gray" HorizontalAlignment="Right"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="Nessuna scadenza imminente." Foreground="Gray" Margin="0,10,0,0"
+                                           Visibility="{Binding HasNoUpcomingDeadlines, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="2" Background="White" CornerRadius="5" Padding="20">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1" Color="#CCC" Opacity="0.5" BlurRadius="5"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="Appuntamenti Prossimi (7gg)" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                <ItemsControl ItemsSource="{Binding UpcomingAppointments}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#EEE" BorderThickness="0,0,0,1" Padding="0,10">
+                                                <StackPanel>
+                                                    <TextBlock FontWeight="Bold" Text="{Binding VehicleName}"/>
+                                                    <TextBlock Text="{Binding Description}" Foreground="Gray" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding AppointmentDate, StringFormat='{}{0:dd/MM/yyyy} alle {0:HH:mm}'}" Foreground="#555" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="Nessun appuntamento in programma." Foreground="Gray" Margin="0,10,0,0"
+                                           Visibility="{Binding HasNoUpcomingAppointments, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Border>
+
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+
+        <TabItem Header="🚗 Gestione Veicoli">
+            <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="450"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TabControl x:Name="DetailPanel" Grid.Column="0" Margin="0,0,5,0">
+                    <TabItem Header="Dettagli &amp; Documenti">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#F5F5F5" Padding="15">
+                            <StackPanel>
+                                <TextBlock Text="Dettagli Veicolo" FontSize="22" FontWeight="Bold" Margin="0,0,0,15"/>
+                                <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="3" Height="150" Margin="0,0,0,5" Background="White">
+                                    <Image x:Name="VehicleImage" Stretch="Uniform"/>
+                                </Border>
+                                <Button x:Name="AddPhotoButton" Content="Aggiungi/Modifica Foto" Margin="0,0,0,15" Click="AddPhotoButton_Click" ToolTip="Salva prima i dati del veicolo per poter aggiungere una foto."/>
+
+                                <Label>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Nome Veicolo:"/>
+                                        <TextBlock Text="*" Foreground="Red" FontWeight="Bold" Margin="2,0,0,0"/>
+                                    </StackPanel>
+                                </Label>
+                                <TextBox x:Name="NameTextBox" Margin="0,0,0,10"/>
+
+                                <Label>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Targa:"/>
+                                        <TextBlock Text="*" Foreground="Red" FontWeight="Bold" Margin="2,0,0,0"/>
+                                    </StackPanel>
+                                </Label>
+                                <TextBox x:Name="LicensePlateTextBox" Margin="0,0,0,10" CharacterCasing="Upper"/>
+
+                                <Label Content="Scadenza Assicurazione:"/>
+                                <DatePicker x:Name="InsuranceDatePicker" Margin="0,0,0,10" SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+                                <Label Content="Scadenza Revisione:"/>
+                                <DatePicker x:Name="RevisionDatePicker" Margin="0,0,0,10" SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+                                <Label Content="Scadenza Bollo:"/>
+                                <DatePicker x:Name="TaxDatePicker" Margin="0,0,0,10" SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+                                <Separator Margin="0,10,0,15"/>
+                                <TextBlock Text="Documenti Collegati" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                <TextBlock Text="Cartelle Collegate:" FontWeight="DemiBold" Margin="0,0,0,2"/>
+                                <ListBox x:Name="FolderPathsListBox" ItemsSource="{Binding SelectedItem.DocumentFolderPaths, ElementName=VehiclesDataGrid}" Height="80" Margin="0,0,0,5" ToolTip="Lista delle cartelle sorgente dei documenti."/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
+                                    <Button x:Name="AddFolderButton" Content="Aggiungi" Click="AddFolderButton_Click" Padding="5,2" Margin="5,0"/>
+                                    <Button x:Name="RemoveFolderButton" Content="Rimuovi" Click="RemoveFolderButton_Click" Padding="5,2" Margin="5,0"/>
+                                    <Button x:Name="ClearFoldersButton" Content="Svuota Tutto" Click="ClearFoldersButton_Click" Padding="5,2" Margin="5,0"/>
+                                </StackPanel>
+                                <TextBlock Text="File Trovati:" FontWeight="DemiBold" Margin="0,0,0,2"/>
+                                <ListBox x:Name="DocumentsListBox" Height="120" MouseDoubleClick="DocumentsListBox_MouseDoubleClick" ToolTip="Doppio click su un file per aprirlo"/>
+                                <Separator Margin="0,10,0,15"/>
+                                <TextBlock Text="Note sul Veicolo" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                <TextBox x:Name="NotesTextBox" Height="100" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Margin="0,0,0,5"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button x:Name="ClearNotesButton" Content="Svuota Note" Padding="8,4" Click="ClearNotesButton_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Manutenzione 🛠">
+                        <Grid Background="#F5F5F5">
+                            <TextBlock x:Name="MaintenancePlaceholder" Text="Seleziona un veicolo dalla lista per gestire la sua manutenzione." HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Foreground="Gray" TextWrapping="Wrap" TextAlignment="Center" Margin="20"/>
+                            <Grid x:Name="MaintenanceContentGrid" Visibility="Collapsed">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Margin="15,15,15,5">
+                                    <TextBlock Text="Storico Manutenzione:" FontSize="22" FontWeight="Bold"/>
+                                    <TextBlock x:Name="MaintenanceVehicleNameTitle" FontSize="20" FontWeight="SemiBold" Foreground="#333333" Margin="0,2,0,10"/>
+                                </StackPanel>
+                                <DataGrid Grid.Row="1" x:Name="MaintenanceDataGrid" Margin="15,0" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding SelectedItem.MaintenanceHistory, ElementName=VehiclesDataGrid}" SelectionChanged="MaintenanceDataGrid_SelectionChanged">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Data" Binding="{Binding Date, StringFormat='dd/MM/yyyy'}" Width="Auto"/>
+                                        <DataGridTextColumn Header="Descrizione" Binding="{Binding Description}" Width="*"/>
+                                        <DataGridTextColumn Header="Km" Binding="{Binding Mileage, StringFormat='{}{0:N0}'}" Width="Auto"/>
+                                        <DataGridTextColumn Header="Costo" Binding="{Binding Cost, StringFormat='C', ConverterCulture='it-IT'}" Width="Auto"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <Button Grid.Row="1" x:Name="RemoveMaintenanceButton" Content="Rimuovi Intervento Selezionato" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="15" Click="RemoveMaintenanceButton_Click"/>
+                                <StackPanel Grid.Row="2" Margin="15">
+                                    <Border x:Name="MaintenanceDetailPanel" Background="White" BorderBrush="LightGray" BorderThickness="1" CornerRadius="3" Padding="8" Margin="0,0,0,10" Visibility="Collapsed">
+                                        <StackPanel>
+                                            <TextBlock Text="Dettaglio Descrizione:" FontWeight="Bold" Foreground="DarkSlateGray"/>
+                                            <TextBlock x:Name="MaintenanceDetailDescription" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Padding="10" BorderBrush="LightGray" BorderThickness="1" CornerRadius="5">
+                                        <StackPanel>
+                                            <TextBlock Text="Aggiungi / Modifica Intervento" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                                                    <Label Content="Data:"/>
+                                                    <DatePicker x:Name="MaintenanceDatePicker"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Margin="5,0">
+                                                    <Label Content="Chilometraggio (Km):"/>
+                                                    <TextBox x:Name="MaintenanceMileageTextBox"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" Margin="5,0,0,0">
+                                                    <Label Content="Costo (€):"/>
+                                                    <TextBox x:Name="MaintenanceCostTextBox"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Label Content="Descrizione:"/>
+                                            <TextBox x:Name="MaintenanceDescriptionTextBox" Margin="0,0,0,10"/>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                <Button x:Name="CancelMaintenanceEditButton" Content="Annulla / Pulisci" Margin="0,0,10,0" Click="CancelMaintenanceEditButton_Click" Visibility="Collapsed"/>
+                                                <Button x:Name="AddOrUpdateMaintenanceButton" Content="Aggiungi Intervento" Click="AddOrUpdateMaintenanceButton_Click"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Appuntamenti" HorizontalAlignment="Left" Margin="2,-2,0,0" Width="92">
+                        <Grid Background="#F5F5F5">
+                            <TextBlock x:Name="AppointmentPlaceholder" Text="Seleziona un veicolo dalla lista per gestire i suoi appuntamenti." HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Foreground="Gray" TextWrapping="Wrap" TextAlignment="Center" Margin="20"/>
+                            <Grid x:Name="AppointmentContentGrid" Visibility="Collapsed">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Margin="15,15,15,5">
+                                    <TextBlock Text="Pianificazione Appuntamenti:" FontSize="22" FontWeight="Bold"/>
+                                    <TextBlock x:Name="AppointmentVehicleNameTitle" FontSize="20" FontWeight="SemiBold" Foreground="#333333" Margin="0,2,0,10"/>
+                                </StackPanel>
+                                <DataGrid Grid.Row="1" x:Name="AppointmentsDataGrid" Margin="15,0" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ItemsSource="{Binding SelectedItem.AppointmentHistory, ElementName=VehiclesDataGrid}" SelectionChanged="AppointmentsDataGrid_SelectionChanged">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Data" Binding="{Binding Date, StringFormat='dd/MM/yyyy'}" Width="Auto"/>
+                                        <DataGridTextColumn Header="Ora" Binding="{Binding Time}" Width="Auto"/>
+                                        <DataGridTextColumn Header="Descrizione" Binding="{Binding Description}" Width="*"/>
+                                        <DataGridTextColumn Header="Luogo" Binding="{Binding Location}" Width="*"/>
+                                        <DataGridTextColumn Header="Stato" Binding="{Binding Status}" Width="Auto"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <Button Grid.Row="1" x:Name="RemoveAppointmentButton" Content="Rimuovi Appuntamento Selezionato" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="15" Click="RemoveAppointmentButton_Click"/>
+                                <Border Grid.Row="2" Margin="15" Padding="10" BorderBrush="LightGray" BorderThickness="1" CornerRadius="5">
+                                    <StackPanel>
+                                        <TextBlock Text="Aggiungi / Modifica Appuntamento" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1.2*"/>
+                                                <ColumnDefinition Width="1*"/>
+                                                <ColumnDefinition Width="1.5*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                                                <Label Content="Data:"/>
+                                                <DatePicker x:Name="AppointmentDatePicker"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="5,0">
+                                                <Label Content="Ora (HH:mm):"/>
+                                                <TextBox x:Name="AppointmentTimeTextBox"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Margin="5,0,0,0">
+                                                <Label Content="Luogo/Contatto:"/>
+                                                <TextBox x:Name="AppointmentLocationTextBox"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Label Content="Descrizione:"/>
+                                        <TextBox x:Name="AppointmentDescriptionTextBox" Margin="0,0,0,10"/>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                                                <Label Content="Stato:"/>
+                                                <ComboBox x:Name="AppointmentStatusComboBox" ItemsSource="{Binding Source={StaticResource AppointmentStatusValues}}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="5,0">
+                                                <Label Content="Costo Previsto (€):"/>
+                                                <TextBox x:Name="AppointmentCostTextBox"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Margin="5,0,0,0">
+                                                <Label Content="Collegato a:"/>
+                                                <ComboBox x:Name="AppointmentLinkedComboBox" ItemsSource="{Binding Source={StaticResource LinkedDeadlineTypeValues}}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Label Content="Note:"/>
+                                        <TextBox x:Name="AppointmentNotesTextBox" Margin="0,0,0,10" Height="40" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button x:Name="CancelAppointmentEditButton" Content="Annulla / Pulisci" Margin="0,0,10,0" Click="CancelAppointmentEditButton_Click" Visibility="Collapsed"/>
+                                            <Button x:Name="AddOrUpdateAppointmentButton" Content="Aggiungi Appuntamento" Click="AddOrUpdateAppointmentButton_Click"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+
+                <Grid Grid.Column="1" Margin="5,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Lista Veicoli     🚗" FontSize="22" FontWeight="Bold" Margin="5,0,0,10"/>
+
+                    <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Margin="5,0,5,10" Background="White">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Path Grid.Column="0" Data="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" Fill="Gray" Width="15" Height="15" Stretch="Uniform" Margin="10,0"/>
+                            <TextBox Grid.Column="1" x:Name="SearchTextBox" TextChanged="SearchTextBox_TextChanged" BorderThickness="0" VerticalContentAlignment="Center" FontSize="14"/>
+                            <TextBlock Grid.Column="1" Text="Cerca per nome, targa o note..." IsHitTestVisible="False" Foreground="Gray" VerticalAlignment="Center" Margin="5,0,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=SearchTextBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+
+                    <DataGrid Grid.Row="2" x:Name="VehiclesDataGrid" Margin="5,0" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" SelectionMode="Single" SelectionChanged="VehiclesDataGrid_SelectionChanged" AlternatingRowBackground="#F9F9F9" EnableRowVirtualization="True" EnableColumnVirtualization="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Foto" Width="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Image Source="{Binding LoadedImage}" Stretch="Uniform" Margin="5"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Nome Veicolo" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Targa" Binding="{Binding LicensePlate}" Width="Auto"/>
+                            <DataGridTemplateColumn Header="Assicurazione" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding InsuranceDaysText}" ToolTip="{Binding InsuranceTooltip}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="Green"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding InsuranceStatus}" Value="Warning">
+                                                            <Setter Property="Foreground" Value="Orange"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding InsuranceStatus}" Value="Expired">
+                                                            <Setter Property="Foreground" Value="Red"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Revisione" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding RevisionDaysText}" ToolTip="{Binding RevisionTooltip}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="Green"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding RevisionStatus}" Value="Warning">
+                                                            <Setter Property="Foreground" Value="Orange"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding RevisionStatus}" Value="Expired">
+                                                            <Setter Property="Foreground" Value="Red"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Bollo" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding TaxDaysText}" ToolTip="{Binding TaxTooltip}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="Green"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding TaxStatus}" Value="Warning">
+                                                            <Setter Property="Foreground" Value="Orange"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding TaxStatus}" Value="Expired">
+                                                            <Setter Property="Foreground" Value="Red"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Grid Grid.Row="3" Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="ExportPdfButton" Grid.Column="0" Margin="5" Padding="10,5" Click="ExportPdfButton_Click" Background="#17a2b8" Foreground="White" FontWeight="Bold">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M8,12H10V11H12V12H14V14H12V15H10V14H8V12M13,18H15V15H16V18H18V20H13V18Z" Fill="White" Width="14" Height="14" Stretch="Uniform"/>
+                                <TextBlock Text="Esporta Tabella PDF" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button x:Name="NewButton" Margin="5" Padding="10,5" Click="NewButton_Click" Background="#28a745" Foreground="White" FontWeight="Bold">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M12,5V19M5,12H19" Stroke="White" StrokeThickness="2" Width="12" Height="12" Stretch="Uniform"/>
+                                    <TextBlock Text="Nuovo Veicolo" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="SaveButton" Margin="5" Padding="10,5" Click="SaveButton_Click" Background="#007bff" Foreground="White" FontWeight="Bold">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M2,12L8,18L22,4" Stroke="White" StrokeThickness="2" Width="14" Height="14" Stretch="Uniform"/>
+                                    <TextBlock Text="Salva Dettagli" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="DeleteButton" Margin="5" Padding="10,5" Click="DeleteButton_Click" Background="#dc3545" Foreground="White" FontWeight="Bold">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M6,19C6,20.1 6.9,21 8,21H16C17.1,21 18,20.1 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z" Fill="White" Width="14" Height="14" Stretch="Uniform"/>
+                                    <TextBlock Text="Elimina Selezionato" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </TabItem>
+    </TabControl>
+</Window>
